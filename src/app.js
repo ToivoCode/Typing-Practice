@@ -2,6 +2,9 @@ const storyTextEl = document.getElementById('story-text');
 const userInput = document.getElementById('user-input');
 const feedback = document.getElementById('feedback');
 const storySelect = document.getElementById('story');
+const difficultySelect = document.getElementById('difficulty');
+let difficulty = 'standard'; // 'standard' | 'forgiving'
+let allowedInputValue = '';
 const statusCompleted = document.getElementById('status-completed');
 const statusTotal = document.getElementById('status-total');
 const statusPercent = document.getElementById('status-percent');
@@ -55,6 +58,147 @@ async function tryLoadStories() {
 
 tryLoadStories();
 
+// Initialize difficulty selector
+if (difficultySelect) {
+    difficultySelect.value = 'standard';
+    difficultySelect.addEventListener('change', (e) => {
+        difficulty = e.target.value || 'standard';
+        // reset input state when switching modes
+        allowedInputValue = '';
+        userInput.value = '';
+        currentIndex = 0;
+        currentSentenceIndex = 0;
+        renderStory();
+        updateProgress();
+    });
+}
+
+// Helper: brief error feedback (blink + sound)
+function triggerErrorFeedback() {
+    // visual blink
+    userInput.classList.add('input-error');
+    setTimeout(() => userInput.classList.remove('input-error'), 220);
+    // sound
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = 150;
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+        o.stop(ctx.currentTime + 0.13);
+    } catch (e) {
+        // ignore audio errors
+        console.warn('Audio error', e);
+    }
+}
+
+// Forgiving mode: intercept key presses and only accept correct characters
+userInput.addEventListener('keydown', (e) => {
+    if (difficulty !== 'forgiving') return;
+    // Allow navigation and modifiers
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const key = e.key;
+    const currentSentence = sentences[currentSentenceIndex] || '';
+
+    // Backspace: remove last accepted character
+    if (key === 'Backspace') {
+        if (allowedInputValue.length > 0) {
+            allowedInputValue = allowedInputValue.slice(0, -1);
+            currentIndex = allowedInputValue.length;
+            userInput.value = allowedInputValue;
+            renderStory();
+            updateProgress();
+            e.preventDefault();
+        }
+        return; // allow default when no accepted chars
+    }
+
+    // Prevent Enter/newline
+    if (key === 'Enter') {
+        e.preventDefault();
+        return;
+    }
+
+    // Only handle single-character keys here
+    if (key.length === 1) {
+        // Normalize Space key (some browsers report ' ' or 'Spacebar')
+        const char = (key === 'Spacebar') ? ' ' : key;
+        const expected = currentSentence[currentIndex];
+        if (expected === undefined) {
+            // no expected char (maybe at sentence end) - ignore
+            e.preventDefault();
+            return;
+        }
+        if (char === expected) {
+            // accept
+            allowedInputValue += char;
+            userInput.value = allowedInputValue;
+            currentIndex = allowedInputValue.length;
+            renderStory();
+            updateProgress();
+            e.preventDefault();
+            // If sentence complete, advance immediately
+            if (currentIndex === currentSentence.length) {
+                currentSentenceIndex++;
+                allowedInputValue = '';
+                userInput.value = '';
+                currentIndex = 0;
+                renderStory();
+                updateProgress();
+                if (currentSentenceIndex >= sentences.length) {
+                    feedback.textContent = 'Well done! You completed the story!';
+                }
+            }
+        } else {
+            // wrong char -> ignore insertion, show feedback
+            e.preventDefault();
+            triggerErrorFeedback();
+        }
+    }
+});
+
+// Handle paste in forgiving mode: only accept leading matching chars
+userInput.addEventListener('paste', (e) => {
+    if (difficulty !== 'forgiving') return;
+    e.preventDefault();
+    const paste = (e.clipboardData || window.clipboardData).getData('text');
+    let i = 0;
+    const currentSentence = sentences[currentSentenceIndex] || '';
+    while (i < paste.length) {
+        const ch = paste[i];
+        const expected = currentSentence[currentIndex];
+        if (expected === undefined) break;
+        if (ch === expected) {
+            allowedInputValue += ch;
+            currentIndex++;
+            userInput.value = allowedInputValue;
+            renderStory();
+            updateProgress();
+            // advance sentence if needed
+            if (currentIndex === currentSentence.length) {
+                currentSentenceIndex++;
+                allowedInputValue = '';
+                currentIndex = 0;
+                userInput.value = '';
+                renderStory();
+                updateProgress();
+                break;
+            }
+        } else {
+            triggerErrorFeedback();
+            break;
+        }
+        i++;
+    }
+});
+
 function populateStorySelect() {
     // clear any existing options except the placeholder
     storySelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
@@ -93,6 +237,7 @@ function loadStory() {
         }
         currentSentenceIndex = 0;
         currentIndex = 0;
+        allowedInputValue = '';
         userInput.value = '';
         userInput.focus();
         feedback.textContent = '';
@@ -117,6 +262,8 @@ function updateProgress() {
 
 // Keep a global function used by the textarea oninput attribute
 function checkInput() {
+    // In forgiving mode we handle input via keydown/paste handlers; ignore oninput events
+    if (difficulty === 'forgiving') return;
     // Read the textarea and normalize leading spaces (ignore accidental leading spaces)
     let raw = userInput.value;
     if (raw.length && /^\s/.test(raw)) {

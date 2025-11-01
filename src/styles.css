@@ -211,3 +211,9 @@ textarea#user-input {
 
 /* Screen-reader only label */
 .sr-only {position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap}
+
+/* visual error state for forgiving mode */
+.input-error {
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.18) !important;
+    transition: box-shadow 180ms ease-in-out;
+}
