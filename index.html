@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Practice App</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Typing Practice</h1>
+        <div id="story-selection">
+            <label for="story">Select a story:</label>
+            <select id="story" onchange="loadStory()">
+                <option value="">--Choose a story--</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <h2 id="story-title" aria-live="polite"></h2>
+        </div>
+        <div id="typing-area">
+            <div class="monitor">
+                <div class="monitor-top">
+                    <div id="status-left">Completed: <span id="status-completed">0</span>/<span id="status-total">0</span></div>
+                    <div id="status-center">00:00</div>
+                    <div id="status-right"><span id="status-percent">0%</span></div>
+                </div>
+                <div class="monitor-screen">
+                    <p id="story-text" class="story" aria-hidden="false"></p>
+                </div>
+                <div class="monitor-bottom">
+                    <div class="progress-wrap" aria-hidden="true">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <label class="sr-only" for="user-input">Type the story here</label>
+            <textarea id="user-input" placeholder="Start typing here..." oninput="checkInput()" aria-label="Type the story here"></textarea>
+            <div id="feedback" role="status" aria-live="polite"></div>
+        </div>
+    </div>
+    <script src="src/app.js"></script>
+</body>
+</html>
