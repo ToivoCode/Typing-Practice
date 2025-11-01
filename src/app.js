@@ -3,7 +3,8 @@ const userInput = document.getElementById('user-input');
 const feedback = document.getElementById('feedback');
 const storySelect = document.getElementById('story');
 const difficultySelect = document.getElementById('difficulty');
-let difficulty = 'standard'; // 'standard' | 'forgiving'
+// Default to forgiving mode for kids
+let difficulty = 'forgiving'; // 'standard' | 'forgiving'
 let allowedInputValue = '';
 const statusCompleted = document.getElementById('status-completed');
 const statusTotal = document.getElementById('status-total');
@@ -60,7 +61,7 @@ tryLoadStories();
 
 // Initialize difficulty selector
 if (difficultySelect) {
-    difficultySelect.value = 'standard';
+    difficultySelect.value = 'forgiving';
     difficultySelect.addEventListener('change', (e) => {
         difficulty = e.target.value || 'standard';
         // reset input state when switching modes
