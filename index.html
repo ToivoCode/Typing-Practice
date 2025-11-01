@@ -41,6 +41,16 @@
             <label class="sr-only" for="user-input">Type the story here</label>
             <textarea id="user-input" placeholder="Start typing here..." oninput="checkInput()" aria-label="Type the story here"></textarea>
             <div id="feedback" role="status" aria-live="polite"></div>
+            <!-- Accordion showing unlocked part of the story -->
+            <div class="accordion">
+                <button id="unlocked-toggle" class="accordion-toggle" aria-expanded="false">Show unlocked part of story</button>
+                <div id="unlocked-content" class="accordion-content" hidden>
+                    <div id="unlocked-text" class="unlocked-text"></div>
+                    <div style="margin-top:8px;">
+                        <button id="reset-story" class="reset-button">Reset Story</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="src/app.js"></script>

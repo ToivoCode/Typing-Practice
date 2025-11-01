@@ -217,3 +217,50 @@ textarea#user-input {
     box-shadow: 0 0 0 3px rgba(220,38,38,0.18) !important;
     transition: box-shadow 180ms ease-in-out;
 }
+
+/* Blink the current character red during an error in forgiving mode */
+.story.cursor-error .current {
+    animation: cursor-error-blink 220ms steps(1, end);
+}
+
+@keyframes cursor-error-blink {
+    0% { background: #e6eef8; color: #0f1720; }
+    50% { background: #ff6b6b; color: #021018; }
+    100% { background: #e6eef8; color: #0f1720; }
+}
+
+/* Make caret color red briefly when input-error is active */
+.input-error { caret-color: #ff6b6b; }
+
+/* Accordion styles for unlocked content */
+.accordion { margin-top: 12px; }
+.accordion-toggle {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+}
+.accordion-toggle[aria-expanded="true"] {
+    background: linear-gradient(90deg, rgba(125,211,252,0.04), rgba(96,165,250,0.035));
+}
+.accordion-content {
+    margin-top: 8px;
+    padding: 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+.unlocked-text { white-space: pre-wrap; color: var(--muted); }
+.reset-button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #9ee6b4;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.reset-button:hover { background: rgba(255,255,255,0.02); }

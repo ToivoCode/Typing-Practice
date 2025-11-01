@@ -73,11 +73,104 @@ if (difficultySelect) {
     });
 }
 
+// --- Storage and unlocked-view helpers (inserted after difficulty init) ---
+let currentStoryTitle = '';
+const STORAGE_KEY = 'typing-practice-progress';
+
+function readProgressStore() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw);
+    } catch (e) {
+        console.warn('Failed to read progress store', e);
+        return {};
+    }
+}
+
+function saveProgressStore(obj) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    } catch (e) {
+        console.warn('Failed to write progress store', e);
+    }
+}
+
+function loadProgressForTitle(title) {
+    if (!title) return 0;
+    const store = readProgressStore();
+    const v = store[title];
+    return (typeof v === 'number' && v >= 0) ? v : 0;
+}
+
+function saveProgressForTitle(title, index) {
+    if (!title) return;
+    const store = readProgressStore();
+    store[title] = index;
+    saveProgressStore(store);
+}
+
+function clearProgressForTitle(title) {
+    if (!title) return;
+    const store = readProgressStore();
+    delete store[title];
+    saveProgressStore(store);
+}
+
+// Accordion elements
+const unlockedToggle = document.getElementById('unlocked-toggle');
+const unlockedContent = document.getElementById('unlocked-content');
+const unlockedText = document.getElementById('unlocked-text');
+const resetButton = document.getElementById('reset-story');
+
+if (unlockedToggle) {
+    unlockedToggle.addEventListener('click', () => {
+        const expanded = unlockedToggle.getAttribute('aria-expanded') === 'true';
+        unlockedToggle.setAttribute('aria-expanded', String(!expanded));
+        if (expanded) {
+            unlockedContent.hidden = true;
+            unlockedToggle.textContent = 'Show unlocked part of story';
+        } else {
+            unlockedContent.hidden = false;
+            unlockedToggle.textContent = 'Hide unlocked part of story';
+        }
+    });
+}
+
+if (resetButton) {
+    resetButton.addEventListener('click', () => {
+        if (!currentStoryTitle) return;
+        clearProgressForTitle(currentStoryTitle);
+        currentSentenceIndex = 0;
+        currentIndex = 0;
+        allowedInputValue = '';
+        userInput.value = '';
+        renderStory();
+        updateProgress();
+        updateUnlockedView();
+    });
+}
+
+function updateUnlockedView() {
+    if (!unlockedText) return;
+    if (!sentences || sentences.length === 0) {
+        unlockedText.textContent = '';
+        return;
+    }
+    const completed = sentences.slice(0, currentSentenceIndex).join(' ');
+    unlockedText.textContent = completed;
+}
+
 // Helper: brief error feedback (blink + sound)
 function triggerErrorFeedback() {
     // visual blink
     userInput.classList.add('input-error');
-    setTimeout(() => userInput.classList.remove('input-error'), 220);
+    // also flash the current-character cursor in the story display
+    if (storyTextEl) storyTextEl.classList.add('cursor-error');
+    setTimeout(() => {
+        userInput.classList.remove('input-error');
+        if (storyTextEl) storyTextEl.classList.remove('cursor-error');
+    }, 220);
     // sound
     try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -147,6 +240,9 @@ userInput.addEventListener('keydown', (e) => {
             // If sentence complete, advance immediately
             if (currentIndex === currentSentence.length) {
                 currentSentenceIndex++;
+                // persist progress
+                saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
+                updateUnlockedView();
                 allowedInputValue = '';
                 userInput.value = '';
                 currentIndex = 0;
@@ -184,6 +280,9 @@ userInput.addEventListener('paste', (e) => {
             // advance sentence if needed
             if (currentIndex === currentSentence.length) {
                 currentSentenceIndex++;
+                // persist progress
+                saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
+                updateUnlockedView();
                 allowedInputValue = '';
                 currentIndex = 0;
                 userInput.value = '';
@@ -228,26 +327,32 @@ function loadStory() {
     const idx = Number(val);
     if (!Number.isFinite(idx) || !stories[idx]) return;
     currentStory = stories[idx].content;
-        // Split story into sentences (keep punctuation). Fall back to whole story if regex fails.
-        const matches = currentStory.match(/[^.!?]+[.!?]+\s*/g);
-        if (matches && matches.length) {
-            sentences = matches.map(s => s.trim());
-        } else {
-            sentences = [currentStory.trim()];
-        }
-        currentSentenceIndex = 0;
-        currentIndex = 0;
-        allowedInputValue = '';
-        userInput.value = '';
-        userInput.focus();
-        feedback.textContent = '';
-        // set sentence totals
-        statusTotal.textContent = sentences.length;
-        statusCompleted.textContent = 0;
-        statusPercent.textContent = '0%';
-        if (progressBar) progressBar.style.width = '0%';
-        renderStory();
-        updateProgress();
+    // set title and load saved progress
+    currentStoryTitle = stories[idx].title || '';
+    // Split story into sentences (keep punctuation). Fall back to whole story if regex fails.
+    const matches = currentStory.match(/[^.!?]+[.!?]+\s*/g);
+    if (matches && matches.length) {
+        sentences = matches.map(s => s.trim());
+    } else {
+        sentences = [currentStory.trim()];
+    }
+    // load saved progress for this story (sentence index)
+    const saved = loadProgressForTitle(currentStoryTitle) || 0;
+    currentSentenceIndex = Math.min(saved, sentences.length);
+    currentIndex = 0;
+    allowedInputValue = '';
+    userInput.value = '';
+    userInput.focus();
+    feedback.textContent = '';
+    // set sentence totals
+    statusTotal.textContent = sentences.length;
+    statusCompleted.textContent = currentSentenceIndex;
+    const pct = Math.round((currentSentenceIndex / (sentences.length || 1)) * 100);
+    statusPercent.textContent = pct + '%';
+    if (progressBar) progressBar.style.width = pct + '%';
+    renderStory();
+    updateUnlockedView();
+    updateProgress();
 }
 
 function updateProgress() {
@@ -280,6 +385,9 @@ function checkInput() {
         if (inputText.trim() === currentSentence) {
             // accept completion and immediately advance
             currentSentenceIndex++;
+            // persist progress
+            saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
+            updateUnlockedView();
             userInput.value = '';
             currentIndex = 0;
             if (currentSentenceIndex >= sentences.length) {
@@ -302,6 +410,9 @@ function checkInput() {
         // If user completed the sentence exactly, advance immediately
         if (inputText.length === currentSentence.length) {
             currentSentenceIndex++;
+            // persist progress
+            saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
+            updateUnlockedView();
             userInput.value = '';
             currentIndex = 0;
             if (currentSentenceIndex >= sentences.length) {
