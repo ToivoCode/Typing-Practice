@@ -38,7 +38,9 @@ h1 {
     font-size: 1.25rem;
     line-height: 1.6;
     margin-bottom: 18px;
-    white-space: pre-wrap;
+    /* allow normal wrapping inside the monitor */
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 #story-title {
@@ -47,6 +49,7 @@ h1 {
     margin: 8px 0 12px;
 }
 
+/* Controls (select + textarea) */
 select, textarea {
     font-size: 1.15rem; /* larger controls */
     padding: 12px;
@@ -55,6 +58,33 @@ select, textarea {
     background: rgba(255,255,255,0.02);
     color: var(--text);
 }
+
+/* Dropdown option contrast fixes */
+select option {
+    background-color: rgba(11,18,32,0.95); /* dark option background matching panel */
+    color: var(--text);
+}
+select option[disabled], select option[value=""] {
+    color: rgba(230,238,248,0.45); /* placeholder/disabled lighter */
+}
+/* Selected / hovered option in dropdown */
+select option:checked, select option:hover {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: #06202a; /* dark text on bright accent */
+}
+
+/* Improve closed select appearance (show selected text clearly) */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text) 50%), linear-gradient(135deg, var(--text) 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+/* For IE/Edge: hide native arrow on select */
+select::-ms-expand { display: none; }
 
 select {
     width: 100%;
@@ -119,11 +149,13 @@ select:focus, textarea:focus {
     background: #0f1720;
     margin: 8px auto;
     border-radius: 8px;
-    padding: 28px 36px;
-    min-height: 160px;
+    /* fixed height keeps vertical center stable when content reflows */
+    height: 220px;
+    padding: 20px 28px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center; /* vertical center */
+    justify-content: center; /* horizontal center */
+    overflow: hidden;
 }
 .monitor-screen .story {
     font-family: 'Courier New', monospace;
@@ -131,6 +163,10 @@ select:focus, textarea:focus {
     text-align: center;
     color: var(--muted);
     margin: 0;
+    /* Use block-level element, centered by the flex container, with a max width so it wraps predictably */
+    display: block;
+    max-width: calc(100% - 40px);
+    line-height: 1.45;
 }
 
 /* character states */
@@ -141,9 +177,9 @@ select:focus, textarea:focus {
 .story .current {
     background: #e6eef8;
     color: #0f1720;
-    padding: 0 3px;
-    border-radius: 3px;
-    box-shadow: 0 0 12px rgba(125,211,252,0.08) inset;
+    /* avoid adding padding or border that affects layout; use background and subtle box-shadow only */
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.25) inset;
 }
 .story .upcoming {
     color: rgba(230,238,248,0.6);

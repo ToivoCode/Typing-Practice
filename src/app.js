@@ -1,7 +1,6 @@
 const storyTextEl = document.getElementById('story-text');
 const userInput = document.getElementById('user-input');
 const feedback = document.getElementById('feedback');
-const storyTitle = document.getElementById('story-title');
 const storySelect = document.getElementById('story');
 const statusCompleted = document.getElementById('status-completed');
 const statusTotal = document.getElementById('status-total');
@@ -11,16 +10,18 @@ const progressBar = document.getElementById('progress-bar');
 let stories = [];
 let currentStory = '';
 let currentIndex = 0;
+let sentences = [];
+let currentSentenceIndex = 0;
 
 // Load stories.json (path relative to index.html). Try a few paths and fall back to a built-in sample
 const fallbackStories = [
     {
-        "title": "The Adventure of the Lost Treasure",
-        "content": "Once upon a time, in a small village, there lived a brave young girl named Lily. She dreamed of finding the lost treasure hidden deep within the enchanted forest. One sunny morning, she decided to embark on her adventure. With a map in hand and courage in her heart, she ventured into the woods, ready to face whatever challenges lay ahead."
+        "title": "Minecraft",
+        "content": "Max bodde i en verden av firkanter. Alt var laget av blokker. Han hadde et lite hus av jord. Han hadde en steinøks og en høne som het Klukk. Max drømte om en diamant. Han ville finne en og bli rik og modig. En dag gikk han ned i en mørk gruve. Han gravde og gravde. Plutselig fant han en stein med rare tegn. Det sto at den som finner den magiske diamanten får kraften til å forandre verden. Max ble veldig spent. Han tente fakler og gikk dypere ned. Han hørte vann som dryppet. Han så lava som lyste rødt. En zombie kom mot ham. Max løp forbi. Så kom en høy mørk figur. Det var en Enderman. Han visste at han ikke måtte se den i øynene. Han listet seg stille forbi. Til slutt fant han et stort rom. Midt på gulvet lå en diamant. Den glødet blått. Max tok den opp. Da begynte bakken å riste. Veggene beveget seg. Små steinfigurer våknet til liv. Diamanten snakket. Hjelp meg Max. Jeg er fanget i en forbannelse. Max så seg rundt. Han fant noen gullblokker. Han lagde en ramme og la diamanten i midten. Et sterkt lys fylte rommet. Alt ble stille. Diamanten sa at han hadde reddet den. Den sa at Max nå kunne bygge og skape som han ville. Da Max kom ut, skinte sola. Over huset hans sto et tre av diamanter. Alle i landsbyen kom for å se. Max smilte. Han visste at den ekte skatten ikke var diamanten. Den var gleden av å bygge og hjelpe andre. Og Klukk fikk et halsbånd som glitret i sola."
     },
     {
-        "title": "The Mysterious Forest",
-        "content": "In a land far away, there was a forest that was said to be magical. Many travelers spoke of strange creatures and hidden paths that led to wonders beyond imagination. One day, a curious boy named Max decided to explore the forest. As he walked deeper into the woods, he discovered a world filled with talking animals and sparkling streams."
+        "title": "Fortnite",
+        "content": "Tim likte Fortnite mer enn alt. Han bygde hus og slott og jaget fiender hele dagen. En dag skjedde noe rart. Skjermen blinket. Et sterkt lys kom ut av spillet. Tim kjente et sug i magen og vips sto han midt i Fortnite verdenen. Han hadde ekte rustning og en liten hakke i handa. Rundt ham var det trer, hus og fargerike lamaer. Tim hørte et dunk. En stor sky kom mot ham. Det var stormen. Han husket fra spillet at stormen var farlig. Han begynte a løpe. Han hoppet over steiner og bygde trapper. En fiende kom ut fra et busk. Han hadde gullvapen. Tim ble redd men husket at i Fortnite hjelper det a tenke fort. Han bygde en mur av tre og sprang opp pa toppen. Der fant han en kiste. I kisten var det en magisk glider. Tim brukte glideren og fløy over fienden. Han landet pa et fjell og sa hele verden under seg. Han sa andre spillere bygge, løpe og kjempe. Men han ville ikke skade noen. Han ville hjelpe. Han bygde broer mellom fjellene sa de andre kunne komme seg unna stormen. Noen ropte takk. Stormen ble svakere. Det ble sol. En stemme sa. Du vant fordi du valgte a hjelpe. Tim smilte og alt ble hvitt. Han var tilbake pa rommet sitt. Skjermen blinket svakt. Spillet var slutt. Han sa seg i speilet og sa. Jeg vant ikke bare i spillet. Jeg vant inni meg. Fra den dagen husket Tim at ekte helter bygger, ikke bare skyter."
     },
     {
         "title": "The Brave Knight",
@@ -74,91 +75,131 @@ function populateStorySelect() {
 function loadStory() {
     const val = storySelect.value;
     if (val === '') {
-        storyTitle.textContent = '';
         storyTextEl.textContent = '';
         userInput.value = '';
         feedback.textContent = '';
-        progress.textContent = '';
         currentStory = '';
         return;
     }
     const idx = Number(val);
     if (!Number.isFinite(idx) || !stories[idx]) return;
     currentStory = stories[idx].content;
-    storyTitle.textContent = stories[idx].title;
-    // Hide text initially so kids reveal it by typing
-    storyTextEl.textContent = ''; // we'll reveal as they type
-    userInput.value = '';
-    userInput.focus();
-    currentIndex = 0;
-    feedback.textContent = '';
-    // set status totals
-    statusTotal.textContent = currentStory.length;
-    renderStory();
-    updateProgress();
+        // Split story into sentences (keep punctuation). Fall back to whole story if regex fails.
+        const matches = currentStory.match(/[^.!?]+[.!?]+\s*/g);
+        if (matches && matches.length) {
+            sentences = matches.map(s => s.trim());
+        } else {
+            sentences = [currentStory.trim()];
+        }
+        currentSentenceIndex = 0;
+        currentIndex = 0;
+        userInput.value = '';
+        userInput.focus();
+        feedback.textContent = '';
+        // set sentence totals
+        statusTotal.textContent = sentences.length;
+        statusCompleted.textContent = 0;
+        statusPercent.textContent = '0%';
+        if (progressBar) progressBar.style.width = '0%';
+        renderStory();
+        updateProgress();
 }
 
 function updateProgress() {
-    statusCompleted.textContent = currentIndex;
-    const pct = currentStory.length ? Math.round((currentIndex / currentStory.length) * 100) : 0;
+    // sentence-based progress
+    const completedSentences = currentSentenceIndex;
+    const totalSentences = sentences.length || 1;
+    statusCompleted.textContent = completedSentences;
+    const pct = Math.round((completedSentences / totalSentences) * 100);
     statusPercent.textContent = pct + '%';
     if (progressBar) progressBar.style.width = pct + '%';
 }
 
 // Keep a global function used by the textarea oninput attribute
 function checkInput() {
-    const inputText = userInput.value;
-    const expected = currentStory.substring(0, inputText.length);
+    // Read the textarea and normalize leading spaces (ignore accidental leading spaces)
+    let raw = userInput.value;
+    if (raw.length && /^\s/.test(raw)) {
+        // remove leading whitespace so it doesn't affect matching or cursor position
+        raw = raw.replace(/^\s+/, '');
+        userInput.value = raw;
+    }
+    const inputText = raw;
+    const currentSentence = sentences[currentSentenceIndex] || '';
+
+    // If the user typed extra whitespace (e.g. a space after a correctly typed sentence),
+    // consider the sentence complete when the trimmed input equals the sentence.
+    if (inputText.length > currentSentence.length) {
+        if (inputText.trim() === currentSentence) {
+            // accept completion and immediately advance
+            currentSentenceIndex++;
+            userInput.value = '';
+            currentIndex = 0;
+            if (currentSentenceIndex >= sentences.length) {
+                feedback.textContent = 'Well done! You completed the story!';
+            } else {
+                feedback.textContent = 'Nice! Next sentence.';
+            }
+            renderStory();
+            updateProgress();
+            return;
+        }
+        // otherwise fall through and treat as mismatch
+    }
+
+    const expected = currentSentence.substring(0, inputText.length);
     if (inputText === expected) {
         currentIndex = inputText.length;
         feedback.textContent = 'Good job!';
-        // update the rendered window
         renderStory();
-        // If finished
-        if (inputText.length === currentStory.length) {
-            feedback.textContent = 'Well done! You completed the story!';
-            setTimeout(() => {
-                // reset input and keep story revealed
-                userInput.value = '';
-                renderStory();
-            }, 800);
+        // If user completed the sentence exactly, advance immediately
+        if (inputText.length === currentSentence.length) {
+            currentSentenceIndex++;
+            userInput.value = '';
+            currentIndex = 0;
+            if (currentSentenceIndex >= sentences.length) {
+                feedback.textContent = 'Well done! You completed the story!';
+            } else {
+                feedback.textContent = 'Nice! Next sentence.';
+            }
+            renderStory();
+            updateProgress();
+            return;
         }
+        updateProgress();
     } else {
         feedback.textContent = 'Keep trying!';
         renderStory();
+        updateProgress();
     }
-    updateProgress();
 }
 
 function escapeHtmlChar(c) {
     if (c === '<') return '&lt;';
     if (c === '>') return '&gt;';
     if (c === '&') return '&amp;';
+    if (c === ' ') return ' ';
     return c;
 }
 
 function renderStory() {
-    if (!currentStory) {
+    if (!sentences || sentences.length === 0) {
         storyTextEl.innerHTML = '';
         return;
     }
-    // Show a sliding window so the next word is visible and centered
-    const windowBefore = 24; // chars to keep visible before cursor
-    const windowAfter = 80; // chars to show after cursor
-    const start = Math.max(0, currentIndex - windowBefore);
-    const end = Math.min(currentStory.length, currentIndex + windowAfter);
+    // If all sentences completed, show final sentence as typed
+    if (currentSentenceIndex >= sentences.length) {
+        storyTextEl.innerHTML = `<span class="typed">${escapeHtmlChar(sentences[sentences.length - 1])}</span>`;
+        return;
+    }
+    const s = sentences[currentSentenceIndex];
     let html = '';
-    for (let i = start; i < end; i++) {
-        const ch = currentStory[i];
-        const safe = ch === ' ' ? '&nbsp;' : escapeHtmlChar(ch);
-        if (i < currentIndex) {
-            html += `<span class="typed">${safe}</span>`;
-        } else if (i === currentIndex) {
-            // current character (cursor)
-            html += `<span class="current">${safe}</span>`;
-        } else {
-            html += `<span class="upcoming">${safe}</span>`;
-        }
+    for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        const safe = escapeHtmlChar(ch);
+        if (i < currentIndex) html += `<span class="typed">${safe}</span>`;
+        else if (i === currentIndex) html += `<span class="current">${safe}</span>`;
+        else html += `<span class="upcoming">${safe}</span>`;
     }
     storyTextEl.innerHTML = html;
 }
