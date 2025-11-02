@@ -135,10 +135,10 @@ if (unlockedToggle) {
         unlockedToggle.setAttribute('aria-expanded', String(!expanded));
         if (expanded) {
             unlockedContent.hidden = true;
-            unlockedToggle.textContent = 'Show unlocked part of story';
+            unlockedToggle.textContent = 'Vis eventyret';
         } else {
             unlockedContent.hidden = false;
-            unlockedToggle.textContent = 'Hide unlocked part of story';
+            unlockedToggle.textContent = 'Skjul eventyret';
         }
     });
 }

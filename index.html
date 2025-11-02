@@ -24,7 +24,7 @@
         <div id="typing-area">
             <div class="monitor">
                 <div class="monitor-top">
-                    <div id="status-left">Completed: <span id="status-completed">0</span>/<span id="status-total">0</span></div>
+                    <div id="status-left">Fullført: <span id="status-completed">0</span>/<span id="status-total">0</span></div>
                     <div id="status-center">00:00</div>
                     <div id="status-right"><span id="status-percent">0%</span></div>
                 </div>
@@ -38,16 +38,16 @@
                 </div>
             </div>
 
-            <label class="sr-only" for="user-input">Type the story here</label>
-            <textarea id="user-input" placeholder="Start typing here..." oninput="checkInput()" aria-label="Type the story here" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+            <label class="sr-only" for="user-input">Skriv her</label>
+            <textarea id="user-input" placeholder="Skriv her..." oninput="checkInput()" aria-label="Type the story here" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
             <div id="feedback" role="status" aria-live="polite"></div>
             <!-- Accordion showing unlocked part of the story -->
             <div class="accordion">
-                <button id="unlocked-toggle" class="accordion-toggle" aria-expanded="false">Show unlocked part of story</button>
+                <button id="unlocked-toggle" class="accordion-toggle" aria-expanded="false">Vis eventyret</button>
                 <div id="unlocked-content" class="accordion-content" hidden>
                     <div id="unlocked-text" class="unlocked-text"></div>
                     <div style="margin-top:8px;">
-                        <button id="reset-story" class="reset-button">Reset Story</button>
+                        <button id="reset-story" class="reset-button">Nullstill eventyret</button>
                     </div>
                 </div>
             </div>
