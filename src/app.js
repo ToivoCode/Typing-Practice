@@ -16,6 +16,7 @@ let currentStory = '';
 let currentIndex = 0;
 let sentences = [];
 let currentSentenceIndex = 0;
+let originalSentences = []; // sentences as in original text (may contain newlines) - used for unlocked view
 
 // Load stories.json (path relative to index.html). Try a few paths and fall back to a built-in sample
 const fallbackStories = [
@@ -26,6 +27,10 @@ const fallbackStories = [
     {
         "title": "Fortnite",
         "content": "Tim likte Fortnite mer enn alt. Han bygde hus og slott og jaget fiender hele dagen. En dag skjedde noe rart. Skjermen blinket. Et sterkt lys kom ut av spillet. Tim kjente et sug i magen og vips sto han midt i Fortnite verdenen. Han hadde ekte rustning og en liten hakke i handa. Rundt ham var det trer, hus og fargerike lamaer. Tim hørte et dunk. En stor sky kom mot ham. Det var stormen. Han husket fra spillet at stormen var farlig. Han begynte a løpe. Han hoppet over steiner og bygde trapper. En fiende kom ut fra et busk. Han hadde gullvapen. Tim ble redd men husket at i Fortnite hjelper det a tenke fort. Han bygde en mur av tre og sprang opp pa toppen. Der fant han en kiste. I kisten var det en magisk glider. Tim brukte glideren og fløy over fienden. Han landet pa et fjell og sa hele verden under seg. Han sa andre spillere bygge, løpe og kjempe. Men han ville ikke skade noen. Han ville hjelpe. Han bygde broer mellom fjellene sa de andre kunne komme seg unna stormen. Noen ropte takk. Stormen ble svakere. Det ble sol. En stemme sa. Du vant fordi du valgte a hjelpe. Tim smilte og alt ble hvitt. Han var tilbake pa rommet sitt. Skjermen blinket svakt. Spillet var slutt. Han sa seg i speilet og sa. Jeg vant ikke bare i spillet. Jeg vant inni meg. Fra den dagen husket Tim at ekte helter bygger, ikke bare skyter."
+    },
+    {
+        "title": "Ragnarok",
+        "content": "Ragnarok og gutten Tim\n\nDet var en gang en gutt som het Tim. Han bodde i en liten hytte ved foten av et fjell. En morgen våknet han av et høyt brak. Jorda ristet og himmelen ble mørk. Fuglene fløy i ring og ulvene hylte. Noe stort var på vei. Det var Ragnarok.\n\nTim løp ut og så lynet slå ned i fjellet. Flammer danset på himmelen. Han ropte på moren sin, men vinden tok stemmen. Han prøvde å løpe, men bakken åpnet seg. Han falt, men landet mykt i gresset. Han kjente hjertet hamre. Alt virket tapt. Han var bare en liten gutt mot store krefter.\n\nDa så han en liten fugl som satt fast i gjørma. Fuglen pep svakt. Tim nølte, men bøyde seg ned. Han tok den forsiktig opp og renset fjærene. Fuglen flakset med vingene og fløy opp. Et lite lys glødet der den hadde vært.\n\nPlutselig hørte Tim en dyp stemme fra fjellet. Den sa Du kan ikke styre stormen, men du kan styre hjertet ditt. Når du hjelper en, hjelper du mange. Tim så rundt seg. Vinden stilnet. Flammene sluknet. Solen brøt fram bak skyene.\n\nHan sto der lenge og så på fjellet. Han hadde ikke stoppet Ragnarok, men han hadde funnet sin egen styrke. Han smilte og sa Jeg er ikke redd mer. For jeg vet nå at selv små hender kan gjøre store ting."
     },
     {
         "title": "The Brave Knight",
@@ -158,8 +163,13 @@ function updateUnlockedView() {
         unlockedText.textContent = '';
         return;
     }
-    const completed = sentences.slice(0, currentSentenceIndex).join(' ');
-    unlockedText.textContent = completed;
+    // Build unlocked content from the original sentences so we can show line breaks
+    const completedParts = originalSentences.slice(0, currentSentenceIndex);
+    // Escape HTML and convert newlines to <br>
+    const escapedParts = completedParts.map(p => escapeHtmlString(p).replace(/\r?\n/g, '<br>'));
+    // Join with a space between sentences to keep spacing consistent
+    const html = escapedParts.join(' ');
+    unlockedText.innerHTML = html;
 }
 
 // Helper: brief error feedback (blink + sound)
@@ -330,13 +340,18 @@ function loadStory() {
     currentStory = stories[idx].content;
     // set title and load saved progress
     currentStoryTitle = stories[idx].title || '';
-    // Split story into sentences (keep punctuation). Fall back to whole story if regex fails.
+    // Split story into sentences (keep punctuation). We keep two arrays:
+    // - originalSentences: from the raw story (may contain newlines) - used for unlocked view
+    // - sentences: cleaned version for typing target (newlines replaced with spaces)
     const matches = currentStory.match(/[^.!?]+[.!?]+\s*/g);
     if (matches && matches.length) {
-        sentences = matches.map(s => s.trim());
+        originalSentences = matches.map(s => s);
     } else {
-        sentences = [currentStory.trim()];
+        originalSentences = [currentStory];
     }
+    // Clean sentences for typing: collapse any whitespace (including newlines) into a single space and trim
+    // This avoids requiring the user to type multiple spaces where the original text had blank lines.
+    sentences = originalSentences.map(s => s.replace(/\s+/g, ' ').trim());
     // load saved progress for this story (sentence index)
     const saved = loadProgressForTitle(currentStoryTitle) || 0;
     currentSentenceIndex = Math.min(saved, sentences.length);
@@ -439,6 +454,15 @@ function escapeHtmlChar(c) {
     if (c === '&') return '&amp;';
     if (c === ' ') return ' ';
     return c;
+}
+
+// escape a whole string for safe insertion into innerHTML
+function escapeHtmlString(s) {
+    if (!s) return '';
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function renderStory() {
