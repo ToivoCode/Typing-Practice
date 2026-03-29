@@ -17,6 +17,10 @@ let currentIndex = 0;
 let sentences = [];
 let currentSentenceIndex = 0;
 let originalSentences = []; // sentences as in original text (may contain newlines) - used for unlocked view
+// Accuracy tracking
+let totalKeystrokes = 0;
+let correctKeystrokes = 0;
+let prevUserRaw = ''; // previous raw textarea value (used for standard mode diffs)
 
 // Load stories.json (path relative to index.html). Try a few paths and fall back to a built-in sample
 const fallbackStories = [
@@ -74,6 +78,10 @@ if (difficultySelect) {
         userInput.value = '';
         currentIndex = 0;
         currentSentenceIndex = 0;
+        // reset accuracy counters when switching
+        totalKeystrokes = 0;
+        correctKeystrokes = 0;
+        prevUserRaw = '';
         renderStory();
         updateProgress();
     });
@@ -128,6 +136,7 @@ const unlockedToggle = document.getElementById('unlocked-toggle');
 const unlockedContent = document.getElementById('unlocked-content');
 const unlockedText = document.getElementById('unlocked-text');
 const resetButton = document.getElementById('reset-story');
+const statusCenter = document.getElementById('status-center');
 
 if (unlockedToggle) {
     unlockedToggle.addEventListener('click', () => {
@@ -151,10 +160,21 @@ if (resetButton) {
         currentIndex = 0;
         allowedInputValue = '';
         userInput.value = '';
+        // reset accuracy when resetting story
+        totalKeystrokes = 0;
+        correctKeystrokes = 0;
+        prevUserRaw = '';
         renderStory();
         updateProgress();
         updateUnlockedView();
     });
+}
+
+function updateAccuracyDisplay() {
+    if (!statusCenter) return;
+    const total = Math.max(1, totalKeystrokes);
+    const pct = Math.round((correctKeystrokes / total) * 100);
+    statusCenter.textContent = pct + '%';
 }
 
 function updateUnlockedView() {
@@ -232,15 +252,19 @@ userInput.addEventListener('keydown', (e) => {
 
     // Only handle single-character keys here
     if (key.length === 1) {
+        // Count this keystroke attempt for accuracy
+        totalKeystrokes++;
         // Normalize Space key (some browsers report ' ' or 'Spacebar')
         const char = (key === 'Spacebar') ? ' ' : key;
         const expected = currentSentence[currentIndex];
         if (expected === undefined) {
             // no expected char (maybe at sentence end) - ignore
+            updateAccuracyDisplay();
             e.preventDefault();
             return;
         }
         if (char === expected) {
+            correctKeystrokes++;
             // accept
             allowedInputValue += char;
             userInput.value = allowedInputValue;
@@ -248,6 +272,7 @@ userInput.addEventListener('keydown', (e) => {
             renderStory();
             updateProgress();
             e.preventDefault();
+            updateAccuracyDisplay();
             // If sentence complete, advance immediately
             if (currentIndex === currentSentence.length) {
                 currentSentenceIndex++;
@@ -267,6 +292,7 @@ userInput.addEventListener('keydown', (e) => {
             // wrong char -> ignore insertion, show feedback
             e.preventDefault();
             triggerErrorFeedback();
+            updateAccuracyDisplay();
         }
     }
 });
@@ -280,14 +306,18 @@ userInput.addEventListener('paste', (e) => {
     const currentSentence = sentences[currentSentenceIndex] || '';
     while (i < paste.length) {
         const ch = paste[i];
+        // each pasted character counts as an attempt
+        totalKeystrokes++;
         const expected = currentSentence[currentIndex];
         if (expected === undefined) break;
         if (ch === expected) {
+            correctKeystrokes++;
             allowedInputValue += ch;
             currentIndex++;
             userInput.value = allowedInputValue;
             renderStory();
             updateProgress();
+            updateAccuracyDisplay();
             // advance sentence if needed
             if (currentIndex === currentSentence.length) {
                 currentSentenceIndex++;
@@ -303,6 +333,7 @@ userInput.addEventListener('paste', (e) => {
             }
         } else {
             triggerErrorFeedback();
+            updateAccuracyDisplay();
             break;
         }
         i++;
@@ -360,6 +391,11 @@ function loadStory() {
     userInput.value = '';
     userInput.focus();
     feedback.textContent = '';
+    // reset accuracy counters when loading a story
+    totalKeystrokes = 0;
+    correctKeystrokes = 0;
+    prevUserRaw = '';
+    updateAccuracyDisplay();
     // set sentence totals
     statusTotal.textContent = sentences.length;
     statusCompleted.textContent = currentSentenceIndex;
@@ -393,6 +429,23 @@ function checkInput() {
         userInput.value = raw;
     }
     const inputText = raw;
+    // Track inserted characters for accuracy in standard mode by comparing with previous raw value
+    try {
+        const prev = prevUserRaw || '';
+        if (raw.length > prev.length) {
+            for (let i = prev.length; i < raw.length; i++) {
+                const ch = raw[i];
+                totalKeystrokes++;
+                const expectedChar = currentSentence[i] || '';
+                if (ch === expectedChar) correctKeystrokes++;
+            }
+            updateAccuracyDisplay();
+        }
+    } catch (e) {
+        // defensive: ignore any indexing errors
+    }
+    // remember for next oninput
+    prevUserRaw = raw;
     const currentSentence = sentences[currentSentenceIndex] || '';
 
     // If the user typed extra whitespace (e.g. a space after a correctly typed sentence),
@@ -405,6 +458,9 @@ function checkInput() {
             saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
             updateUnlockedView();
             userInput.value = '';
+            // reset prev raw (standard-mode typing buffer)
+            prevUserRaw = '';
+            updateAccuracyDisplay();
             currentIndex = 0;
             if (currentSentenceIndex >= sentences.length) {
                 feedback.textContent = 'Well done! You completed the story!';
@@ -430,6 +486,9 @@ function checkInput() {
             saveProgressForTitle(currentStoryTitle, currentSentenceIndex);
             updateUnlockedView();
             userInput.value = '';
+            // reset prev raw (standard-mode typing buffer)
+            prevUserRaw = '';
+            updateAccuracyDisplay();
             currentIndex = 0;
             if (currentSentenceIndex >= sentences.length) {
                 feedback.textContent = 'Well done! You completed the story!';
