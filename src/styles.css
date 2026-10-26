@@ -25,3 +25,80 @@
 }
 
 
+
+/* Phone-only workspace: the visible viewport excludes the software keyboard. */
+@media (max-width: 600px) {
+    body {
+        position: fixed;
+        top: var(--phone-top, 0px);
+        left: 0;
+        width: 100%;
+        height: var(--phone-height, 100dvh);
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 6px 10px max(6px, env(safe-area-inset-bottom));
+        overflow: hidden;
+        background-attachment: scroll;
+    }
+    .topbar { width: 100%; padding: 0; margin: 0; min-height: 40px; flex: 0 0 40px; }
+    .brand { font-size: 19px; gap: 7px; }
+    .brand img { width: 25px; height: 25px; }
+    .library-button { min-height: 36px; padding: 7px 11px; font-size: 12px; }
+    .game {
+        width: 100%; margin: 0; padding: 12px;
+        flex: 1; min-height: 0;
+        display: flex; flex-direction: column; gap: 10px;
+        border-radius: 16px;
+    }
+    .game::before, .game::after, .book-mark, #story-category,
+    #adventure-number, #progress-dots, .divider, .page-footer,
+    .game-footer, .stat-icon, .letters, #mode-hint { display: none; }
+    .story-heading { padding: 0; gap: 8px; flex: 0 0 auto; }
+    .heading-copy { min-width: 0; }
+    h1 { font-size: 17px; line-height: 1.3; text-wrap: wrap; }
+    .journey { display: block; max-width: none; }
+    .journey p { font-size: 10px; margin: 0; }
+    .typing-panel {
+        display: flex; flex-direction: column; gap: 8px;
+        flex: 1; min-height: 0; padding: 0; border: 0;
+        background: none; box-shadow: none; border-radius: 0;
+    }
+    .exercise-heading { margin: 0; flex-wrap: nowrap; gap: 6px; flex: 0 0 auto; }
+    .exercise-heading h2 { font: 12px 'Segoe UI', sans-serif; }
+    .mode-label { font-size: 0; gap: 0; }
+    #difficulty { font-size: 16px; padding: 5px; max-width: 160px; }
+    .sentence-window {
+        flex: 1; min-height: 64px; padding: 12px;
+        overflow: auto; align-items: flex-start; justify-content: flex-start;
+        border-radius: 10px; overscroll-behavior: contain;
+    }
+    #story-text { font-size: 21px; line-height: 1.5; text-align: left; margin-block: auto; width: 100%; }
+    #user-input {
+        flex: 0 0 64px; height: 64px; min-height: 64px; max-height: 64px;
+        margin: 0; padding: 9px 11px; resize: none;
+        font-size: 18px; line-height: 1.3; border-radius: 10px;
+    }
+    #user-input::placeholder { font: 16px/1.5 'Segoe UI', sans-serif; }
+    .feedback-row { min-height: 0; padding: 0; flex: 0 0 auto; font-size: 11px; line-height: 1.3; }
+    .exercise-bottom { flex: 0 0 40px; gap: 10px; }
+    .stat div { display: flex; align-items: baseline; gap: 8px; }
+    .stat div > span { font-size: 11px; }
+    .stat strong { font-size: 16px; margin: 0; }
+    #continue { min-width: 120px; min-height: 40px; padding: 8px 16px; font: 16px 'Segoe UI', sans-serif; }
+    .revealed { flex: 0 1 150px; min-height: 0; padding: 12px; }
+    .revealed-heading { padding-bottom: 6px; }
+    .revealed-heading h2 { font-size: 17px; }
+    #unlocked-text { max-height: 80px; font-size: 14px; }
+    #locked-note { display: none; }
+    dialog { width: calc(100% - 20px); max-height: calc(var(--phone-height, 100dvh) - 20px); padding: 18px; }
+    .library-heading h2 { font-size: 24px; }
+    #story-list { grid-template-columns: 1fr; }
+    /* Hide secondary content when the keyboard leaves little vertical space. */
+    .phone-compact .story-heading, .phone-compact .exercise-heading,
+    .phone-compact .revealed { display: none; }
+    .phone-compact .game { padding: 10px; }
+    .phone-compact .topbar { min-height: 34px; flex-basis: 34px; }
+    .phone-compact .library-button { min-height: 32px; padding-block: 5px; }
+}

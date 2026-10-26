@@ -188,3 +188,45 @@ async function initialize() {
 }
 initialize();
 
+
+// iOS keeps the layout viewport tall when its keyboard opens. Size only the
+// phone workspace to visualViewport instead, including Safari's focus panning.
+const phoneLayout = window.matchMedia('(max-width: 600px)');
+function updatePhoneViewport() {
+    if (!phoneLayout.matches) {
+        document.documentElement.style.removeProperty('--phone-height');
+        document.documentElement.style.removeProperty('--phone-top');
+        document.body.classList.remove('phone-compact');
+        return;
+    }
+    const viewport = window.visualViewport;
+    // Leave pinch zoom to the browser; do not resize the layout during zoom.
+    if (viewport && viewport.scale > 1.05) return;
+    const height = viewport ? viewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--phone-height', `${height}px`);
+    document.documentElement.style.setProperty('--phone-top', `${viewport ? viewport.offsetTop : 0}px`);
+    document.body.classList.toggle('phone-compact', height < 520);
+}
+phoneLayout.addEventListener('change', updatePhoneViewport);
+window.addEventListener('resize', updatePhoneViewport);
+window.visualViewport?.addEventListener('resize', updatePhoneViewport);
+window.visualViewport?.addEventListener('scroll', updatePhoneViewport);
+updatePhoneViewport();
+
+// On small screens, keep the current letter in the sentence's scrollable area
+// without scrolling the page or moving the input beneath the keyboard.
+function keepPhoneCursorVisible() {
+    if (!phoneLayout.matches) return;
+    requestAnimationFrame(() => {
+        const cursor = el('story-text').querySelector('.current');
+        if (!cursor) return;
+        const box = document.querySelector('.sentence-window');
+        const bounds = box.getBoundingClientRect();
+        const caret = cursor.getBoundingClientRect();
+        if (caret.bottom > bounds.bottom - 8) box.scrollTop += caret.bottom - bounds.bottom + 8;
+        else if (caret.top < bounds.top + 8) box.scrollTop -= bounds.top - caret.top + 8;
+    });
+}
+input.addEventListener('input', keepPhoneCursorVisible);
+input.addEventListener('compositionend', keepPhoneCursorVisible);
+window.visualViewport?.addEventListener('resize', keepPhoneCursorVisible);
