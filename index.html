@@ -1,58 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skriv deg videre</title>
-    <link rel="stylesheet" href="src/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Skriv deg videre</h1>
-        <div id="story-selection">
-            <label for="story">Velg et eventyr:</label>
-            <select id="story" onchange="loadStory()">
-                <option value="">--Velg et eventyr--</option>
-                <!-- Options will be populated by JavaScript -->
-            </select>
-            <label for="difficulty" style="display:block;margin-top:10px;">Vanskelighetsgrad:</label>
-            <select id="difficulty" aria-label="Difficulty">
-                <option value="standard">Realistisk</option>
-                <option value="forgiving">Enkel</option>
-            </select>
-        </div>
-        <div id="typing-area">
-            <div class="monitor">
-                <div class="monitor-top">
-                    <div id="status-left">Fullført: <span id="status-completed">0</span>/<span id="status-total">0</span></div>
-                    <div id="status-center">00:00</div>
-                    <div id="status-right"><span id="status-percent">0%</span></div>
-                </div>
-                <div class="monitor-screen">
-                    <p id="story-text" class="story" aria-hidden="false"></p>
-                </div>
-                <div class="monitor-bottom">
-                    <div class="progress-wrap" aria-hidden="true">
-                        <div id="progress-bar" class="progress-bar"></div>
-                    </div>
-                </div>
-            </div>
-
-            <label class="sr-only" for="user-input">Skriv her</label>
-            <textarea id="user-input" placeholder="Skriv her..." oninput="checkInput()" aria-label="Type the story here" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-            <div id="feedback" role="status" aria-live="polite"></div>
-            <!-- Accordion showing unlocked part of the story -->
-            <div class="accordion">
-                <button id="unlocked-toggle" class="accordion-toggle" aria-expanded="false">Vis eventyret</button>
-                <div id="unlocked-content" class="accordion-content" hidden>
-                    <div id="unlocked-text" class="unlocked-text"></div>
-                    <div style="margin-top:8px;">
-                        <button id="reset-story" class="reset-button">Nullstill eventyret</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="src/app.js"></script>
-</body>
-</html>
+<html lang="nb"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#141b35"><title>TypeStory · Skriv deg videre</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="icon" href="assets/favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png"><link rel="stylesheet" href="src/styles.css"><script src="data/stories.js" defer></script><script src="src/app.js" defer></script></head>
+<body><header class="topbar"><a class="brand" href="index.html"><img src="assets/favicon.svg" width="32" height="32" alt="">TypeStory</a><span>Skriv deg inn i en annen verden</span><button id="library-open" class="library-button">▦ &nbsp; Velg eventyr</button></header>
+<main class="game"><header class="story-heading"><div class="book-mark" aria-hidden="true">📖</div><div class="heading-copy"><p id="story-category" class="eyebrow"></p><h1 id="story-title">Eventyret venter</h1><p id="adventure-number"></p></div><div class="journey"><p id="sentence-label"></p><div id="progress-dots" aria-hidden="true"></div><div id="progress" class="sr-only" role="progressbar" aria-label="Fremgang" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div></div></header>
+<div class="divider" aria-hidden="true"><span>✦</span></div>
+<section class="typing-panel" aria-labelledby="typing-title"><div class="exercise-heading"><h2 id="typing-title">Skriv denne setningen</h2><label class="mode-label">Skrivemodus <select id="difficulty"><option value="forgiving">Med litt hjelp</option><option value="standard">På egen hånd</option></select></label></div><div class="sentence-window"><p id="story-text"></p></div><label class="sr-only" for="user-input">Skriv setningen her</label><textarea id="user-input" rows="2" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Skriv den samme setningen her..." aria-describedby="feedback mode-hint" disabled></textarea><div class="feedback-row"><p id="feedback" role="status" aria-live="polite">Gjør deg klar for et nytt eventyr.</p><span id="mode-hint">Feil bokstaver blir ikke skrevet inn.</span></div><div class="exercise-bottom"><div class="stat"><span class="stat-icon" aria-hidden="true">◎</span><div><span>Nøyaktighet</span><strong id="accuracy">—</strong></div></div><div class="stat letters"><span class="stat-icon" aria-hidden="true">▤</span><div><span>Bokstaver</span><strong id="letters">0 / 0</strong></div></div><button id="continue" disabled>Fortsett <span aria-hidden="true">→</span></button></div></section>
+<div class="divider lower" aria-hidden="true"><span>✦</span></div>
+<section class="revealed" aria-labelledby="revealed-title"><div class="revealed-heading"><h2 id="revealed-title"><span aria-hidden="true">♧</span> Eventyret så langt</h2><span id="unlocked-count">0 setninger</span></div><div id="unlocked-text"><p class="empty-story">Hver setning du skriver, åpner litt mer av historien.</p></div><p id="locked-note">✧ &nbsp; Mer av eventyret venter på deg</p></section>
+<footer class="game-footer"><span id="save-note">Fremgangen din lagres automatisk.</span><button id="reset-story">Start på nytt</button></footer></main><footer class="page-footer">ET LITE SKRIVEEVENTYR <span>✦</span> I DITT EGET TEMPO</footer>
+<dialog id="library"><div class="library-heading"><div><p class="eyebrow">TI NYE VERDENER</p><h2>Velg ditt neste eventyr</h2></div><button id="library-close" aria-label="Lukk eventyrbiblioteket">×</button></div><p class="library-intro">Små helter. Store oppdagelser. En setning om gangen.</p><nav id="story-list" aria-label="Eventyr"></nav></dialog></body></html>

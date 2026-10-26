@@ -1,49 +1,30 @@
-# Typing Practice App
+# TypeStory — Skriv deg videre
 
-## Overview
-The Typing Practice App is a web application designed to help users improve their typing skills through engaging stories. Users can select a story to type, and as they type, the story will be revealed, providing an interactive and fun way to practice typing.
+A Norwegian typing adventure for ages 7–12, built with plain HTML, CSS and JavaScript. No frameworks, external fonts or runtime dependencies.
 
-## Project Structure
-```
-typing-practice-app
-├── index.html          # Main HTML document for the application
-├── src
-│   ├── app.js         # Main logic for the typing practice application
-│   ├── ui.js          # User interface management
-│   └── styles.css     # Styles for the application
-├── data
-│   └── stories.json   # JSON file containing multiple stories
-├── package.json       # Configuration file for npm
-├── .gitignore         # Files and directories to ignore in version control
-└── README.md          # Documentation for the project
-```
+## Run
 
-## Getting Started
+Open `index.html` directly in a browser, or run `python -m http.server 8000` in this folder and visit `http://localhost:8000`.
 
-### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, etc.)
-- Basic understanding of HTML, CSS, and JavaScript
+Choose a story with **Velg eventyr**. Type the sentence, then press **Enter** or **Fortsett** to reveal it and move on. **Med litt hjelp** rejects incorrect input. **På egen hånd** lets you correct mistakes yourself. Accuracy counts inserted characters, including pasted text. Completed sentences are saved per story in browser local storage. Switching modes preserves completed sentences. **Start på nytt** resets only the current story. The final button opens the story library.
 
-### Installation
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```
-   cd typing-practice-app
-   ```
+If storage is unavailable, progress lasts only while the page remains open. A fully typed sentence is saved when you press Continue or Enter.
 
-### Running the Application
-1. Open `index.html` in your web browser.
-2. Select a story from the available options.
-3. Start typing to reveal the story and track your progress.
+## Content
 
-### Customizing Stories
-To add or modify stories, edit the `data/stories.json` file. Each story should be an object with a `title` and `content` property.
+`data/stories.json` is the source for ten original Norwegian stories. After edits, run `node scripts/sync-stories.js` to validate the punctuation and regenerate the direct-file/offline copy in `data/stories.js`. Only letters, whitespace, periods, commas and exclamation marks are allowed in story text and titles. Decorative interface symbols are never typing targets.
 
-### Contributing
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
+## Design and assets
 
-### License
-This project is open-source and available under the MIT License.
+The desktop layout uses a generated storybook landscape, dark panels, gold accents and cyan typing highlights. The story library uses a native accessible dialog. Narrow-window layouts and reduced-motion preferences are supported.
+
+- `assets/enchanted-world.png`: background generated with the built-in image generation tool. Prompt recorded in `assets/art-direction.md`.
+- `assets/favicon.svg`: scalable book and sparkle mark.
+- `assets/favicon-32.png`: browser PNG fallback.
+- `assets/apple-touch-icon.png`: opaque 180 by 180 iOS home-screen icon.
+
+`src/app.js` contains the active game logic. The legacy `src/ui.js` is not loaded.
+
+## Validation
+
+JavaScript syntax and story punctuation checked. A Node DOM simulation exercised both typing modes, wrong input, corrections, sentence advancement, mode and story switches, saved progress after reload, completion and reset. Story bundle parity and PNG dimensions were also checked. Visual browser review remains outstanding because the connected browser disallowed local file URLs.
