@@ -18,7 +18,7 @@ If storage is unavailable, progress lasts only while the page remains open. A fu
 
 The desktop layout uses a generated storybook landscape, dark panels, gold accents and cyan typing highlights. The story library uses a native accessible dialog. Narrow-window layouts and reduced-motion preferences are supported.
 
-- `assets/enchanted-world.png`: background generated with the built-in image generation tool. Prompt recorded in `assets/art-direction.md`.
+- `assets/stories/*.png`: ten unique story backgrounds generated with the built-in image generation tool. Selecting a story changes both the page and revealed-story background. Each story maps to its image via the `background` field in `data/stories.json`. Exact prompts are in `assets/stories/prompts.json`.
 - `assets/favicon.svg`: scalable book and sparkle mark.
 - `assets/favicon-32.png`: browser PNG fallback.
 - `assets/apple-touch-icon.png`: opaque 180 by 180 iOS home-screen icon.

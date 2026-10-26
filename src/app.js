@@ -35,6 +35,9 @@ function clearInput() {
 function selectStory(index, focus = true) {
     selected = index;
     sentences = split(stories[index].content);
+    // Absolute URLs work for both local files and HTTP, including paths with spaces.
+    const background = new URL(stories[index].background, document.baseURI).href;
+    document.documentElement.style.setProperty("--story-background", `url(${JSON.stringify(background)})`);
     const saved = store[stories[index].title];
     completed = Number.isInteger(saved) ? Math.min(Math.max(saved, 0), sentences.length) : 0;
     attempts = correct = 0;
