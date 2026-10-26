@@ -50,9 +50,9 @@ function renderUnlocked() {
     const container = el('unlocked-text');
     container.replaceChildren();
     if (completed) {
-        const list = document.createElement('ol');
+        const list = document.createElement('div');
         sentences.slice(0, completed).forEach(sentence => {
-            const item = document.createElement('li'); item.textContent = sentence; list.append(item);
+            const item = document.createElement('p'); item.textContent = sentence; list.append(item);
         });
         container.append(list);
         container.scrollTop = container.scrollHeight;
@@ -131,6 +131,19 @@ function advance() {
     if (!input.disabled) { feedback.textContent = 'En ny setning. Eventyret fortsetter!'; input.focus({ preventScroll: true }); }
     else next.focus({ preventScroll: true });
 }
+// Keep practice to typed input. Cover keyboard/menu paste and dragged text.
+function blockTransfer(event) {
+    event.preventDefault();
+    feedback.textContent = 'Skriv selv, en bokstav om gangen. Du klarer det!';
+}
+input.addEventListener('paste', blockTransfer);
+input.addEventListener('drop', blockTransfer);
+input.addEventListener('dragover', event => event.preventDefault());
+input.addEventListener('beforeinput', event => {
+    if (['insertFromPaste', 'insertFromPasteAsQuotation', 'insertFromDrop'].includes(event.inputType)) {
+        blockTransfer(event);
+    }
+});
 input.addEventListener('input', processInput);
 input.addEventListener('compositionend', processInput);
 input.addEventListener('keydown', event => {
@@ -168,6 +181,7 @@ async function initialize() {
         button.addEventListener('click', () => { el('library').close(); selectStory(i); });
         el('story-list').append(button);
     });
-    selectStory(0, false);
+    selectStory(0);
 }
 initialize();
+

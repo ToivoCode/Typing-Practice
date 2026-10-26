@@ -6,7 +6,7 @@ A Norwegian typing adventure for ages 7–12, built with plain HTML, CSS and Jav
 
 Open `index.html` directly in a browser, or run `python -m http.server 8000` in this folder and visit `http://localhost:8000`.
 
-Choose a story with **Velg eventyr**. Type the sentence, then press **Enter** or **Fortsett** to reveal it and move on. **Med litt hjelp** rejects incorrect input. **På egen hånd** lets you correct mistakes yourself. Accuracy counts inserted characters, including pasted text. Completed sentences are saved per story in browser local storage. Switching modes preserves completed sentences. **Start på nytt** resets only the current story. The final button opens the story library.
+Choose a story with **Velg eventyr**. Type the sentence, then press **Enter** or **Fortsett** to reveal it and move on. **Med litt hjelp** rejects incorrect input. **På egen hånd** lets you correct mistakes yourself. Accuracy counts typed characters. Pasting and dropping text into the exercise are blocked. The input receives focus when the game loads. Completed sentences are saved per story in browser local storage. Switching modes preserves completed sentences. **Start på nytt** resets only the current story. The final button opens the story library.
 
 If storage is unavailable, progress lasts only while the page remains open. A fully typed sentence is saved when you press Continue or Enter.
 
@@ -28,3 +28,4 @@ The desktop layout uses a generated storybook landscape, dark panels, gold accen
 ## Validation
 
 JavaScript syntax and story punctuation checked. A Node DOM simulation exercised both typing modes, wrong input, corrections, sentence advancement, mode and story switches, saved progress after reload, completion and reset. Story bundle parity and PNG dimensions were also checked. Visual browser review remains outstanding because the connected browser disallowed local file URLs.
+
