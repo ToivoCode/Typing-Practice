@@ -1,0 +1,72 @@
+{
+  "island": {
+    "file": "assets/stories/island.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 78,
+    "bytes": 247204
+  },
+  "band": {
+    "file": "assets/stories/band.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 78,
+    "bytes": 234930
+  },
+  "bridge": {
+    "file": "assets/stories/bridge.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 58,
+    "bytes": 247444
+  },
+  "moon": {
+    "file": "assets/stories/moon.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 78,
+    "bytes": 247488
+  },
+  "dragon": {
+    "file": "assets/stories/dragon.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 74,
+    "bytes": 232148
+  },
+  "forest": {
+    "file": "assets/stories/forest.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 74,
+    "bytes": 254504
+  },
+  "clouds": {
+    "file": "assets/stories/clouds.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 78,
+    "bytes": 239094
+  },
+  "station": {
+    "file": "assets/stories/station.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 74,
+    "bytes": 237386
+  },
+  "garden": {
+    "file": "assets/stories/garden.webp",
+    "width": 1440,
+    "height": 810,
+    "quality": 54,
+    "bytes": 248350
+  },
+  "city": {
+    "file": "assets/stories/city.webp",
+    "width": 1600,
+    "height": 900,
+    "quality": 70,
+    "bytes": 254684
+  }
+}

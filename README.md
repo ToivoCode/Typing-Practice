@@ -16,9 +16,9 @@ If storage is unavailable, progress lasts only while the page remains open. A fu
 
 ## Design and assets
 
-The desktop layout uses a generated storybook landscape, dark panels, gold accents and cyan typing highlights. The story library uses a native accessible dialog. Narrow-window layouts and reduced-motion preferences are supported.
+The desktop layout uses original anime and manga-inspired story landscapes, dark panels, gold accents and cyan typing highlights. The story library uses a native accessible dialog. Narrow-window layouts and reduced-motion preferences are supported.
 
-- `assets/stories/*.png`: ten unique story backgrounds generated with the built-in image generation tool. Selecting a story changes both the page and revealed-story background. Each story maps to its image via the `background` field in `data/stories.json`. Exact prompts are in `assets/stories/prompts.json`.
+- `assets/stories/*.webp`: ten original story backgrounds generated from story text with the built-in image generation tool, with a unique cast per story. Each WebP is at most 1600 × 900 and 250 KiB. Selecting a story changes both the page and revealed-story background. Each story maps to its image via the `background` field in `data/stories.json`. Exact prompts are in `assets/stories/prompts.json`.
 - `assets/favicon.svg`: scalable book and sparkle mark.
 - `assets/favicon-32.png`: browser PNG fallback.
 - `assets/apple-touch-icon.png`: opaque 180 by 180 iOS home-screen icon.
@@ -27,5 +27,7 @@ The desktop layout uses a generated storybook landscape, dark panels, gold accen
 
 ## Validation
 
-JavaScript syntax and story punctuation checked. A Node DOM simulation exercised both typing modes, wrong input, corrections, sentence advancement, mode and story switches, saved progress after reload, completion and reset. Story bundle parity and PNG dimensions were also checked. Visual browser review remains outstanding because the connected browser disallowed local file URLs.
+JavaScript syntax and story punctuation checked. A Node DOM simulation exercised both typing modes, wrong input, corrections, sentence advancement, mode and story switches, saved progress after reload, completion and reset. Story bundle parity and WebP dimensions and byte budgets were also checked. Visual browser review remains outstanding because the connected browser disallowed local file URLs.
 
+
+Artwork requirements, cast differentiation and export instructions: [assets/art-direction.md](assets/art-direction.md). Final generation prompts and cast descriptions: [assets/stories/prompts.json](assets/stories/prompts.json). Export sizes: [assets/stories/image-report.json](assets/stories/image-report.json).
